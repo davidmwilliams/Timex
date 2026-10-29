@@ -67,3 +67,10 @@ __recovery/
 
 # Boss dependency manager vendor folder https://github.com/HashLoad/boss
 modules/
+
+# .NET build outputs and local app data
+**/bin/
+**/obj/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal

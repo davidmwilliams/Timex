@@ -1,22 +1,31 @@
 # Timex
-A consultant's time tracker for projects, activities, etc.
 
-This is a Delphi project I wrote from 1998 to 2000, used for time tracking. It provided a fast user interface to allow users to easily and efficiently record time against different projects.
+Timex is a consultant time tracker originally written in Delphi (1998–2000). The original Delphi project and forms remain in the repository. A C#/.NET 10 Windows Forms version is in `src/Timex`.
 
-It should still compile fine in modern versions of Delphi, except these things will need to be changed:
+The replacement keeps the original core workflows: create and duplicate time slips, browse and soft-delete/restore them, maintain consultants/clients/jobs, search by consultant/client/date, export tab-delimited data, and preview or print timesheets and invoices. Invoice output contains time entries only: the original data model has no rate, currency, or amount fields.
 
-## Database
-The database was Paradox and will need to be recreated in something else now. From the 'emptydb' folder we can see there are four tables: consultants, clients, jobs, slips - the "slips" being timeslip entries that tie together a consultant's time against a job for a client. Looking at the code now (22 years later ...) I can see these are the tables and fields I used:
+## Run the .NET version
 
-* consultants - id, name
-* jobs - id, description
-* clients - id, code
-* slips - id, consultantid, clientid, jobid, date, hours, minutes, text, deleted
+Install the .NET 10 SDK on Windows, then run:
 
-## Reports
-I used QuickReports at the time, which used to be bundled with Delphi. There are reports for timesheets and invoices (the latter being interesting, given I don't see a field for consultant rate in the above tables). The reports would need to be migrated to something else.
+```powershell
+dotnet restore Timex.sln
+dotnet run --project src/Timex/Timex.csproj
+```
 
-## Other notes
-I like my Delphi style, if I am allowed to say that, and I hope anybody looking at the code will see a tidy approach to separating methods, to indentation and general formatting, etc.
+The app creates its SQLite database on first run at `%LOCALAPPDATA%\Timex\timex.sqlite`. It requires no database server. SQLite tables and indexes are initialized automatically.
 
-There's a curious thing in the main form where I seem to save the latest record numbers to the registry instead of using max(...) from the database. I don't know now why I did that.
+## Data migration
+
+The new app does not read Paradox files. The checked-in `emptydb` directory contains the legacy Paradox database artifacts; preserve any populated Paradox database separately before replacing or retiring an old installation. A Paradox-to-SQLite importer is not included.
+
+The SQLite schema mirrors the original logical data:
+
+* `consultants`: `id`, `name`
+* `clients`: `id`, `code`
+* `jobs`: `id`, `description`
+* `slips`: `id`, `consultant_id`, `client_id`, `job_id`, `slip_date`, `hours`, `minutes`, `text`, `deleted`
+
+## Development
+
+The Windows Forms UI targets `net10.0-windows`. The repository can be built with `dotnet build Timex.sln` on Windows or with the Windows targeting pack enabled on a supported non-Windows development host. The generated SQLite database is local application data and should be backed up like any other user data.
